@@ -3,7 +3,6 @@ import Navbar from "./Navbar";
 import { BrowserRouter } from "react-router-dom";
 
 function App() {
-
   return (
     <BrowserRouter>
       <div>
@@ -14,8 +13,4 @@ function App() {
   );
 }
 
-
 export default App;
-
-
-

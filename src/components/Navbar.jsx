@@ -9,9 +9,7 @@ import ListItemText from "@mui/material/ListItemText";
 import navbarItems from "./navbarItems";
 import { useNavigate } from "react-router-dom";
 
-
 function Navbar() {
-
   const navbarStyles = {
     drawer: {
       width: 320,
@@ -35,34 +33,21 @@ function Navbar() {
         marginLeft: "-10px",
         fontWeight: "600",
         fontSize: "16px",
-      }
-    }
+      },
+    },
   };
 
   const navigate = useNavigate();
 
   return (
-    <Drawer
-      sx={navbarStyles.drawer}
-      variant="permanent"
-      anchor="left">
+    <Drawer sx={navbarStyles.drawer} variant="permanent" anchor="left">
       <Toolbar />
       <Divider />
       <List>
-        {navbarItems.map(item => (
-          <ListItem
-            key={item.id}
-            onClick={() => navigate(item.route)}
-          >
-            <ListItemIcon
-              sx={navbarStyles.icons}
-            >
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText
-              sx={navbarStyles.text}
-              primary={item.label}
-            />
+        {navbarItems.map((item) => (
+          <ListItem key={item.id} onClick={() => navigate(item.route)}>
+            <ListItemIcon sx={navbarStyles.icons}>{item.icon}</ListItemIcon>
+            <ListItemText sx={navbarStyles.text} primary={item.label} />
           </ListItem>
         ))}
       </List>
@@ -70,4 +55,4 @@ function Navbar() {
   );
 }
 
-export default Navbar
+export default Navbar;
