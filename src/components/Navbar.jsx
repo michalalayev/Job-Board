@@ -17,7 +17,7 @@ function Navbar() {
       "& .MuiDrawer-paper": {
         width: 320,
         boxSizing: "border-box",
-        backgroundColor: "#101F33",
+        backgroundColor: "#101F33", //"#cccccc",
         color: "rgba(255, 255, 255, 0.7)",
       },
       "& .Mui-selected": {
