@@ -1,48 +1,48 @@
 import React from "react";
+import WorkIcon from "@mui/icons-material/Work";
 import PeopleIcon from "@mui/icons-material/People";
-import ImageIcon from "@mui/icons-material/Image";
-import PublicIcon from "@mui/icons-material/Public";
-import SettingsEthernetIcon from "@mui/icons-material/SettingsEthernet";
-import SettingsInputComponentIcon from "@mui/icons-material/SettingsInputComponent";
-import DnsIcon from "@mui/icons-material/Dns";
+import EventIcon from "@mui/icons-material/Event";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import SettingsIcon from '@mui/icons-material/Settings';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
 
 const navbarItems = [
   {
     id: 0,
-    icon: <PeopleIcon />,
-    label: "Authentication",
-    route: "/authentication",
+    icon: <WorkIcon />,
+    label: "Jobs",
+    route: "/",
   },
   {
     id: 1,
-    icon: <DnsIcon />,
-    label: "Database",
-    route: "/database",
+    icon: <PeopleIcon />,
+    label: "Networking",
+    route: "/networking",
   },
   {
     id: 2,
-    icon: <ImageIcon />,
-    label: "Storage",
-    route: "/storage",
+    icon: <EventIcon />,
+    label: "Events",
+    route: "/events",
   },
   {
     id: 3,
-    icon: <PublicIcon />,
-    label: "Hosting",
-    route: "/hosting",
+    icon: <AccountCircleIcon />,
+    label: "User",
+    route: "/user",
   },
   {
     id: 4,
-    icon: <SettingsEthernetIcon />,
-    label: "Functions",
-    route: "/functions",
+    icon: <SettingsIcon />,
+    label: "Settings",
+    route: "/settings",
   },
   {
     id: 5,
-    icon: <SettingsInputComponentIcon />,
-    label: "Machine learning",
-    route: "/machine-learning",
+    icon: <EqualizerIcon />,
+    label: "Analytics",
+    route: "/analytics",
   },
-]
+];
 
 export default navbarItems;
