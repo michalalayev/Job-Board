@@ -3,10 +3,11 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
 import { styled } from "@mui/material/styles";
+import { useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
 
-function HeadingBar({ open, header }) {
+function HeadingBar({ open }) {
   const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== "open",
   })(({ theme, open }) => ({
@@ -24,6 +25,10 @@ function HeadingBar({ open, header }) {
     }),
   }));
 
+  const location = useLocation();
+  const path = location.pathname;
+  const header = path.slice(1).charAt(0).toUpperCase() + path.slice(2);
+
   return (
     <AppBar position="fixed" open={open}>
       <Toolbar>
@@ -31,9 +36,9 @@ function HeadingBar({ open, header }) {
           variant="h6"
           noWrap
           component="div"
-          sx={{ marginLeft: open ? 0 : 8 }}
+          sx={{ marginLeft: (open ? 0 : 8), fontWeight: "bold" }}
         >
-          {header}
+          {path === "/" ? "Jobs" : header}
         </Typography>
       </Toolbar>
     </AppBar>

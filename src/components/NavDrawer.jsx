@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { styled } from "@mui/material/styles"; //useTheme
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -17,6 +17,7 @@ import navDrawerItems from "./navDrawerItems";
 //import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import HeadingBar from "./HeadingBar";
+import logo from "../logo.png";
 
 const drawerWidth = 240;
 
@@ -41,10 +42,10 @@ const closedMixin = (theme) => ({
   },
 });
 
-const DrawerHeader = styled("div")(({ theme }) => ({
+const DrawerHeader = styled("div")(({ theme, open }) => ({
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-end",
+  justifyContent: open ? "space-between" : "center",
   padding: theme.spacing(0, 1),
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
@@ -67,30 +68,56 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-function NavDrawer({header}) {
+const DrawerTitle = () => (
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "left",
+      ml: "13px",
+      gap: "13px",
+    }}
+  >
+    <img src={logo} alt="logo" style={{ height: "35px" }} />
+    <Typography
+      variant="h5"
+      noWrap
+      sx={{ fontSize: "1.45rem", fontWeight: "bold" }}
+    >
+      Job Board
+    </Typography>
+  </Box>
+);
+
+function NavDrawer() {
   //const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-
-  // function handleDrawerOpen() {
-  //   setOpen(true);
-  // }
-
-  // function handleDrawerClose() {
-  //   setOpen(false);
-  // }
 
   function handleDrawerOpening() {
     setOpen((prevValue) => !prevValue);
   }
+  // function handleDrawerOpen() {
+  //   setOpen(true);
+  // }
+  // function handleDrawerClose() {
+  //   setOpen(false);
+  // }
 
   //const navigate = useNavigate();
+
+  const [selectedItem, setSelectedItem] = React.useState(0);
+
+  const handleListItemClick = (event, id) => {
+    setSelectedItem(id);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <HeadingBar header={header} open={open} />
+      <HeadingBar open={open} />
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
+        <DrawerHeader open={open}>
+          {open && <DrawerTitle />}
           <IconButton onClick={handleDrawerOpening}>
             {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
@@ -112,6 +139,8 @@ function NavDrawer({header}) {
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                 }}
+                selected={selectedItem === item.id}
+                onClick={(event) => handleListItemClick(event, item.id)}
               >
                 <ListItemIcon
                   sx={{
@@ -120,7 +149,7 @@ function NavDrawer({header}) {
                     justifyContent: "center",
                   }}
                 >
-                  {item.icon}
+                  {<item.icon color="primary" />}
                 </ListItemIcon>
                 <ListItemText
                   primary={item.label}
