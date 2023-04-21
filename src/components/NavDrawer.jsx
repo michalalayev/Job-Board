@@ -3,7 +3,6 @@ import { styled } from "@mui/material/styles"; //useTheme
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
@@ -18,11 +17,11 @@ import navDrawerItems from "./navDrawerItems";
 import { Link } from "react-router-dom";
 import HeadingBar from "./HeadingBar";
 import logo from "../logo.png";
+import constants from "../constants";
 
-const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
-  width: drawerWidth,
+  width: constants.drawerWidthOpen,
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -51,10 +50,21 @@ const DrawerHeader = styled("div")(({ theme, open }) => ({
   ...theme.mixins.toolbar,
 }));
 
+// wanted to add a div on the left side of the screen full height, as space
+// between the Drawer and the Main component on each page.
+// const DrawerSide = styled("div")(({ theme, open }) => ({
+//   display: "block",
+//   height: "100",
+//   //width: open ? (drawerWidth + 200) : `calc(${theme.spacing(7)} + 100px)`,
+//   width: "400px",
+//   padding: theme.spacing(0, 1),
+//   backgroundColor: "red",
+// }));
+
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
-  width: drawerWidth,
+  width: constants.drawerWidthOpen,
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
@@ -82,16 +92,17 @@ const DrawerTitle = () => (
     <Typography
       variant="h5"
       noWrap
-      sx={{ fontSize: "1.45rem", fontWeight: "bold" }}
+      sx={{ fontSize: "1.45rem", fontWeight: "fontWeightBold" }}
     >
       Job Board
     </Typography>
   </Box>
 );
 
-function NavDrawer() {
+function NavDrawer({open, setOpen}) {
   //const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  //const [open, setOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState(0);
 
   function handleDrawerOpening() {
     setOpen((prevValue) => !prevValue);
@@ -105,15 +116,12 @@ function NavDrawer() {
 
   //const navigate = useNavigate();
 
-  const [selectedItem, setSelectedItem] = React.useState(0);
-
   const handleListItemClick = (event, id) => {
     setSelectedItem(id);
   };
 
   return (
     <Box sx={{ display: "flex" }}>
-      <CssBaseline />
       <HeadingBar open={open} />
       <Drawer variant="permanent" open={open}>
         <DrawerHeader open={open}>
@@ -163,6 +171,7 @@ function NavDrawer() {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Typography paragraph>the table will be here</Typography>
       </Box>
+      {/* <DrawerHeader /> for blank space at the top of the page beneath the HeadingBar */}
     </Box>
   );
 }
