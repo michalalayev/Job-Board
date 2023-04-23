@@ -1,12 +1,11 @@
 import React from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
-import NavDrawer from "./NavDrawer";
 import { Routes, Route, useLocation } from "react-router-dom";
 import navDrawerItems from "./navDrawerItems";
 import { useEffect } from "react";
 import { CssBaseline } from "@mui/material";
-import Main from "./Main";
+import Layout from "./Layout";
 
 function App() {
   const theme = createTheme({
@@ -30,21 +29,36 @@ function App() {
     document.title = pageTitle;
   }, [location]);
 
-  const [open, setOpen] = React.useState(false);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <NavDrawer open={open} setOpen={setOpen} />
-      <Main open={open}>
+      <Layout>
         <Routes>
           {navDrawerItems.map((item) => (
             <Route key={item.id} path={item.route} element={<item.page />} />
           ))}
         </Routes>
-      </Main>
+      </Layout>
     </ThemeProvider>
   );
 }
 
 export default App;
+
+//const [open, setOpen] = React.useState(false);
+
+// return (
+//   <ThemeProvider theme={theme}>
+//     <CssBaseline />
+//     {/* <NavDrawer open={open} setOpen={setOpen} /> */}
+//     <NavDrawer>
+//       {/* <Main open={open}> */}
+//       <Routes>
+//         {navDrawerItems.map((item) => (
+//           <Route key={item.id} path={item.route} element={<item.page />} />
+//         ))}
+//       </Routes>
+//       {/* </Main> */}
+//     </NavDrawer>
+//   </ThemeProvider>
+// );

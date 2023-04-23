@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
+//import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -14,7 +15,12 @@ import ListItemText from "@mui/material/ListItemText";
 import navDrawerItems from "./navDrawerItems";
 //import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import HeadingBar from "./HeadingBar";
 import logo from "../logo.png";
+import constants from "../constants";
+import Main from "./Main";
+import { Toolbar } from "@mui/material";
+
 
 
 const DrawerHeader = styled("div")(({ theme, open }) => ({
@@ -38,10 +44,11 @@ const DrawerHeader = styled("div")(({ theme, open }) => ({
 // }));
 
 const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open" && prop != "widthOpened" && prop != "widthClosed",
-})(({ theme, open, widthOpened, widthClosed }) => ({
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
   "& .MuiDrawer-paper": {
-    width: widthOpened,
+    //position: "relative",
+    width: constants.drawerWidthOpen,
     whiteSpace: "nowrap",
     boxSizing: "border-box",
     overflowX: "hidden",
@@ -54,9 +61,9 @@ const Drawer = styled(MuiDrawer, {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      width: `calc(${widthClosed} - ${theme.spacing(1)})`, //`calc(${theme.spacing(7)} + 1px)`,
+      width: `calc(${theme.spacing(7)} + 1px)`,
       [theme.breakpoints.up("sm")]: {
-        width: widthClosed, //`calc(${theme.spacing(8)} + 1px)`,
+        width: `calc(${theme.spacing(8)} + 1px)`,
       },
     }),
   },
@@ -83,63 +90,83 @@ const DrawerTitle = () => (
   </Box>
 );
 
-function NavDrawer({ open, setOpen, widthOpened, widthClosed }) {
+function NavDrawer({ children }) {
+  //open, setOpen,
+  //const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState(0);
 
   function handleDrawerOpening() {
     setOpen((prevValue) => !prevValue);
   }
+  // function handleDrawerOpen() {
+  //   setOpen(true);
+  // }
+  // function handleDrawerClose() {
+  //   setOpen(false);
+  // }
+
+  //const navigate = useNavigate();
 
   const handleListItemClick = (event, id) => {
     setSelectedItem(id);
   };
 
   return (
-    <Drawer variant="permanent" open={open} widthOpened={widthOpened} widthClosed={widthClosed}>
-      <DrawerHeader open={open}>
-        {open && <DrawerTitle />}
-        <IconButton onClick={handleDrawerOpening}>
-          {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-        </IconButton>
-      </DrawerHeader>
-      {/* <Divider /> */}
-      <List sx={{ p: 0 }}>
-        {navDrawerItems.map((item) => (
-          <ListItem
-            key={item.id}
-            disablePadding
-            sx={{ display: "block" }}
-            // onClick={() => navigate(item.route)}
-          >
-            <ListItemButton
-              component={Link}
-              to={item.route}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-              selected={selectedItem === item.id}
-              onClick={(event) => handleListItemClick(event, item.id)}
+    <Box sx={{ display: "flex" }}>
+      <HeadingBar open={open} />
+      <Drawer variant="permanent" open={open}>
+        <DrawerHeader open={open}>
+          {open && <DrawerTitle />}
+          <IconButton onClick={handleDrawerOpening}>
+            {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        </DrawerHeader>
+        {/* <Divider /> */}
+        <List sx={{ p: 0 }}>
+          {navDrawerItems.map((item) => (
+            <ListItem
+              key={item.id}
+              disablePadding
+              sx={{ display: "block" }}
+              // onClick={() => navigate(item.route)}
             >
-              <ListItemIcon
+              <ListItemButton
+                component={Link}
+                to={item.route}
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
                 }}
+                selected={selectedItem === item.id}
+                onClick={(event) => handleListItemClick(event, item.id)}
               >
-                {<item.icon color="primary" />}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                sx={{ opacity: open ? 1 : 0 }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Drawer>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                  }}
+                >
+                  {<item.icon color="primary" />}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  sx={{ opacity: open ? 1 : 0 }}
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+      <Main open={open}>
+        <Toolbar />
+        {/* for blank space at the top of the page beneath the HeadingBar */}
+        {children}
+        {/* <Copyright /> */}
+      </Main>
+    </Box>
   );
 }
 

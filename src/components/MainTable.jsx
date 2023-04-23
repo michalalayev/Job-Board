@@ -21,101 +21,93 @@ import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
+import rows from "./tableItems";
 
-function createData(name, calories, fat, carbs, protein) {
-  return {
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-  };
-}
 
-const rows = [
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Donut", 452, 25.0, 51, 4.9),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-  createData("Honeycomb", 408, 3.2, 87, 6.5),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Jelly Bean", 375, 0.0, 94, 0.0),
-  createData("KitKat", 518, 26.0, 65, 7.0),
-  createData("Lollipop", 392, 0.2, 98, 0.0),
-  createData("Marshmallow", 318, 0, 81, 2.0),
-  createData("Nougat", 360, 19.0, 9, 37.0),
-  createData("Oreo", 437, 18.0, 63, 4.0),
-];
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
+function ascendingComparator(a, b, orderBy) {
+  if (a[orderBy] < b[orderBy]) {
     return -1;
   }
-  if (b[orderBy] > a[orderBy]) {
+  if (a[orderBy] > b[orderBy]) {
     return 1;
   }
   return 0;
 }
 
 function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
+  return order === "asc"
+    ? (a, b) => ascendingComparator(a, b, orderBy)
+    : (a, b) => -ascendingComparator(a, b, orderBy);
 }
 
 // Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
 // stableSort() brings sort stability to non-modern browsers (notably IE11). If you
 // only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
 // with exampleArray.slice().sort(exampleComparator)
+// function stableSort(array, comparator) {
+//   const stabilizedThis = array.map((el, index) => [el, index]);
+//   stabilizedThis.sort((a, b) => {
+//     const order = comparator(a[0], b[0]);
+//     if (order !== 0) {
+//       return order;
+//     }
+//     return a[1] - b[1];
+//   });
+//   return stabilizedThis.map((el) => el[0]);
+// }
+
 function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
+  return array.slice().sort(comparator)
 }
 
 const headCells = [
   {
-    id: "name",
+    id: "position",
     numeric: false,
-    disablePadding: true,
-    label: "Dessert (100g serving)",
+    disablePadding: false,
+    label: "Position",
   },
   {
-    id: "calories",
-    numeric: true,
+    id: "company",
+    numeric: false,
     disablePadding: false,
-    label: "Calories",
+    label: "Company",
   },
   {
-    id: "fat",
-    numeric: true,
+    id: "location",
+    numeric: false,
     disablePadding: false,
-    label: "Fat (g)",
+    label: "Location",
   },
   {
-    id: "carbs",
-    numeric: true,
+    id: "createdDate",
+    numeric: false,
     disablePadding: false,
-    label: "Carbs (g)",
+    label: "Created Date",
   },
   {
-    id: "protein",
-    numeric: true,
+    id: "lastModified",
+    numeric: false,
     disablePadding: false,
-    label: "Protein (g)",
+    label: "Last Modified",
+  },
+  {
+    id: "status",
+    numeric: false,
+    disablePadding: false,
+    label: "Status",
+  },
+  {
+    id: "actions",
+    numeric: false,
+    disablePadding: false,
+    label: "Actions",
   },
 ];
 
 const DEFAULT_ORDER = "asc";
-const DEFAULT_ORDER_BY = "calories";
-const DEFAULT_ROWS_PER_PAGE = 5;
+const DEFAULT_ORDER_BY = "status";
+const DEFAULT_ROWS_PER_PAGE = 10;
 
 function EnhancedTableHead(props) {
   const {
@@ -140,7 +132,7 @@ function EnhancedTableHead(props) {
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
             inputProps={{
-              "aria-label": "select all desserts",
+              "aria-label": "select all",
             }}
           />
         </TableCell>
@@ -179,9 +171,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
-
+function EnhancedTableToolbar({ numSelected }) {
   return (
     <Toolbar
       sx={{
@@ -202,6 +192,7 @@ function EnhancedTableToolbar(props) {
           color="inherit"
           variant="subtitle1"
           component="div"
+          align="left"
         >
           {numSelected} selected
         </Typography>
@@ -212,7 +203,7 @@ function EnhancedTableToolbar(props) {
           id="tableTitle"
           component="div"
         >
-          Nutrition
+          Title (change this row later)
         </Typography>
       )}
 
@@ -252,18 +243,13 @@ function MainTable() {
       rows,
       getComparator(DEFAULT_ORDER, DEFAULT_ORDER_BY)
     );
-
-    rowsOnMount = rowsOnMount.slice(
-      0 * DEFAULT_ROWS_PER_PAGE,
-      0 * DEFAULT_ROWS_PER_PAGE + DEFAULT_ROWS_PER_PAGE
-    );
-
+    rowsOnMount = rowsOnMount.slice(0, DEFAULT_ROWS_PER_PAGE);
     setVisibleRows(rowsOnMount);
   }, []);
 
   const handleRequestSort = React.useCallback(
     (event, newOrderBy) => {
-      const isAsc = orderBy === newOrderBy && order === "asc";
+      const isAsc = (orderBy === newOrderBy && order === "asc");
       const toggledOrder = isAsc ? "desc" : "asc";
       setOrder(toggledOrder);
       setOrderBy(newOrderBy);
@@ -283,32 +269,38 @@ function MainTable() {
   );
 
   const handleSelectAllClick = (event) => {
+    let newSelected = [];
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
-      setSelected(newSelected);
-      return;
+      newSelected = rows.map((row) => row.id);
     }
-    setSelected([]);
+    setSelected(newSelected);
+    //console.log(newSelected);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  function handleClick(event, id) {
+    const indexInSelected = selected.indexOf(id);
     let newSelected = [];
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
+    if (indexInSelected === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else {
       newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
+        selected.slice(0, indexInSelected),
+        selected.slice(indexInSelected + 1)
       );
     }
-
+    // } else if (selectedIndex === 0) {
+    //   newSelected = newSelected.concat(selected.slice(1));
+    // } else if (selectedIndex === selected.length - 1) {
+    //   newSelected = newSelected.concat(selected.slice(0, -1));
+    // } else if (selectedIndex > 0) {
+    //   newSelected = newSelected.concat(
+    //     selected.slice(0, selectedIndex),
+    //     selected.slice(selectedIndex + 1)
+    //   );
+    // }
     setSelected(newSelected);
+    //console.log(newSelected);
   };
 
   const handleChangePage = React.useCallback(
@@ -360,11 +352,9 @@ function MainTable() {
     setDense(event.target.checked);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
-
   return (
     <Box sx={{ width: "100%" }}>
-      <Paper elevation={6} sx={{ width: "100%", mb: 2 }}>
+      <Paper elevation={6} sx={{ width: "100%", mb: 2}}> {/* p: "0 12px" */}
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
@@ -383,18 +373,18 @@ function MainTable() {
             <TableBody>
               {visibleRows
                 ? visibleRows.map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
+                  const isItemSelected = (selected.indexOf(row.id) !== -1);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
+                      onClick={(event) => handleClick(event, row.id)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
-                      selected={isItemSelected}
+                      key={row.id}
+                      selected={isItemSelected} // for shading
                       sx={{ cursor: "pointer" }}
                     >
                       <TableCell padding="checkbox">
@@ -410,14 +400,16 @@ function MainTable() {
                         component="th"
                         id={labelId}
                         scope="row"
-                        padding="none"
+                        padding="normal"
                       >
-                        {row.name}
+                        {row.position}
                       </TableCell>
-                      <TableCell align="right">{row.calories}</TableCell>
-                      <TableCell align="right">{row.fat}</TableCell>
-                      <TableCell align="right">{row.carbs}</TableCell>
-                      <TableCell align="right">{row.protein}</TableCell>
+                      <TableCell align="left">{row.company}</TableCell>
+                      <TableCell align="left">{row.location}</TableCell>
+                      <TableCell align="left">{row.dateCreated}</TableCell>
+                      <TableCell align="left">{row.lastModified}</TableCell>
+                      <TableCell align="left">{row.status}</TableCell>
+                      <TableCell align="left">{row.actions}</TableCell>
                     </TableRow>
                   );
                 })

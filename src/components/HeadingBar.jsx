@@ -4,18 +4,17 @@ import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
 import { styled } from "@mui/material/styles";
 import { useLocation } from "react-router-dom";
-import constants from "../constants";
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
+})(({ theme, open, widthOpened }) => ({
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   ...(open && {
-    marginLeft: constants.drawerWidthOpen,
-    width: `calc(100% - ${constants.drawerWidthOpen}px)`,
+    marginLeft: widthOpened,
+    width: `calc(100% - ${widthOpened})`,
     transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -23,14 +22,14 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-function HeadingBar({ open }) {
+function HeadingBar({ open, widthOpened }) {
 
   const location = useLocation();
   const path = location.pathname;
   const header = path.slice(1).charAt(0).toUpperCase() + path.slice(2);
 
   return (
-    <AppBar position="fixed" open={open}>
+    <AppBar position="fixed" open={open} widthOpened={widthOpened}>
       <Toolbar>
         <Typography
           variant="h6"
