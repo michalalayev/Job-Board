@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
@@ -6,7 +7,7 @@ import { styled } from "@mui/material/styles";
 import { useLocation } from "react-router-dom";
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
+  shouldForwardProp: (prop) => prop !== "open" && prop !== "widthOpened"
 })(({ theme, open, widthOpened }) => ({
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
@@ -43,5 +44,11 @@ function HeadingBar({ open, widthOpened }) {
     </AppBar>
   );
 }
+
+HeadingBar.propTypes = {
+  open: PropTypes.bool.isRequired,
+  widthOpened: PropTypes.string.isRequired,
+};
+
 
 export default HeadingBar;

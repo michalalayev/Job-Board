@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { styled } from "@mui/material/styles"; //useTheme
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -15,7 +16,6 @@ import navDrawerItems from "./navDrawerItems";
 //import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import logo from "../logo.png";
-
 
 const DrawerHeader = styled("div")(({ theme, open }) => ({
   display: "flex",
@@ -38,7 +38,8 @@ const DrawerHeader = styled("div")(({ theme, open }) => ({
 // }));
 
 const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open" && prop != "widthOpened" && prop != "widthClosed",
+  shouldForwardProp: (prop) =>
+    prop !== "open" && prop != "widthOpened" && prop != "widthClosed",
 })(({ theme, open, widthOpened, widthClosed }) => ({
   "& .MuiDrawer-paper": {
     width: widthOpened,
@@ -95,7 +96,12 @@ function NavDrawer({ open, setOpen, widthOpened, widthClosed }) {
   };
 
   return (
-    <Drawer variant="permanent" open={open} widthOpened={widthOpened} widthClosed={widthClosed}>
+    <Drawer
+      variant="permanent"
+      open={open}
+      widthOpened={widthOpened}
+      widthClosed={widthClosed}
+    >
       <DrawerHeader open={open}>
         {open && <DrawerTitle />}
         <IconButton onClick={handleDrawerOpening}>
@@ -105,12 +111,7 @@ function NavDrawer({ open, setOpen, widthOpened, widthClosed }) {
       {/* <Divider /> */}
       <List sx={{ p: 0 }}>
         {navDrawerItems.map((item) => (
-          <ListItem
-            key={item.id}
-            disablePadding
-            sx={{ display: "block" }}
-            // onClick={() => navigate(item.route)}
-          >
+          <ListItem key={item.id} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               component={Link}
               to={item.route}
@@ -142,5 +143,12 @@ function NavDrawer({ open, setOpen, widthOpened, widthClosed }) {
     </Drawer>
   );
 }
+
+NavDrawer.propTypes = {
+  open: PropTypes.bool.isRequired,
+  setOpen: PropTypes.func.isRequired,
+  widthOpened: PropTypes.string.isRequired,
+  widthClosed: PropTypes.string.isRequired,
+};
 
 export default NavDrawer;
