@@ -1,7 +1,9 @@
 import React from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { orange } from "@mui/material/colors";
+import { yellow } from "@mui/material/colors";
 import { Routes, Route, useLocation } from "react-router-dom";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"
 import navDrawerItems from "./navDrawerItems";
 import { useEffect } from "react";
 import { CssBaseline } from "@mui/material";
@@ -10,8 +12,8 @@ import Layout from "./Layout";
 function App() {
   const theme = createTheme({
     palette: {
-      secondary: {
-        main: orange[500],
+      yellow: {
+        main: yellow[600],
       },
     },
   });
@@ -30,16 +32,18 @@ function App() {
   }, [location]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Layout>
-        <Routes>
-          {navDrawerItems.map((item) => (
-            <Route key={item.id} path={item.route} element={<item.page />} />
-          ))}
-        </Routes>
-      </Layout>
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Layout>
+          <Routes>
+            {navDrawerItems.map((item) => (
+              <Route key={item.id} path={item.route} element={<item.page />} />
+            ))}
+          </Routes>
+        </Layout>
+      </ThemeProvider>
+    </LocalizationProvider>
   );
 }
 

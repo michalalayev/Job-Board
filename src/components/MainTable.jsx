@@ -11,11 +11,11 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+// import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
+// import IconButton from "@mui/material/IconButton";
+// import Tooltip from "@mui/material/Tooltip";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 //import DeleteIcon from "@mui/icons-material/Delete";
@@ -23,8 +23,38 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 //import CancelIcon from "@mui/icons-material/Cancel";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import SortIcon from "@mui/icons-material/Sort";
 import { visuallyHidden } from "@mui/utils";
+import Button from "@mui/material/Button";
 import rows from "./tableItems";
+import AddIcon from "@mui/icons-material/Add";
+import Stack from "@mui/material/Stack";
+import Rating from "@mui/material/Rating";
+import Chip from "@mui/material/Chip";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import updateLocale from "dayjs/plugin/updateLocale";
+
+dayjs.extend(relativeTime)
+dayjs.extend(updateLocale)
+
+dayjs.updateLocale("en", {
+  relativeTime: {
+    future: "in %s",
+    past: "%s ago",
+    s: "a few seconds",
+    m: "1 minute",
+    mm: "%d minutes",
+    h: "1 hour",
+    hh: "%d hours",
+    d: "1 day",
+    dd: "%d days",
+    M: "1 month",
+    MM: "%d months",
+    y: "1 year",
+    yy: "%d years"
+  }
+})
 
 function ascendingComparator(a, b, orderBy) {
   //a,b are tableItems (rows), orderBy is the property name (column name)
@@ -135,6 +165,7 @@ function EnhancedTableHead(props) {
             }}
           /> */}
         </TableCell>
+        <TableCell padding="checkbox"></TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -169,6 +200,35 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
+function AddButton() {
+  return (
+    <Button
+      variant="contained"
+      size="small"
+      startIcon={<AddIcon />}
+      onClick={() => {
+        console.log("clicked");
+      }}
+    >
+      ADD JOB
+    </Button>
+  );
+}
+
+function BaseTableToolbar() {
+  return (
+    <Toolbar
+      sx={{
+        display: "flex",
+        justifyContent: "right",
+        pr: { xs: 2, sm: 2 },
+      }}
+    >
+      <AddButton />
+    </Toolbar>
+  );
+}
+
 function EnhancedTableToolbar({ numSelected, rowCount, onSelectAllClick }) {
   return (
     <Toolbar
@@ -176,7 +236,7 @@ function EnhancedTableToolbar({ numSelected, rowCount, onSelectAllClick }) {
         display: "flex",
         justifyContent: numSelected === 0 && "space-between",
         pl: { xs: 0.5, sm: 0.5 },
-        pr: { xs: 1, sm: 1 },
+        pr: { xs: 2, sm: 2 },
         ...(numSelected > 0 && {
           bgcolor: (theme) =>
             alpha(
@@ -186,7 +246,28 @@ function EnhancedTableToolbar({ numSelected, rowCount, onSelectAllClick }) {
         }),
       }}
     >
-      <Tooltip title="Select all">
+      <FormControlLabel
+        sx={{
+          ml: 0,
+          mr: "20px",
+          "& .MuiTypography-root": {
+            lineHeight: 1.75,
+            fontSize: "0.875rem",
+            fontWeight: numSelected > 0 && 600,
+          },
+        }}
+        label={numSelected > 0 ? `${numSelected} selected` : "Select all"}
+        control=<Checkbox
+          color="primary"
+          indeterminate={numSelected > 0 && numSelected < rowCount}
+          checked={rowCount > 0 && numSelected === rowCount}
+          onChange={onSelectAllClick}
+          inputProps={{
+            "aria-label": "select all",
+          }}
+        />
+      />
+      {/* <Tooltip title="Select all">
         <Checkbox
           color="primary"
           indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -196,7 +277,8 @@ function EnhancedTableToolbar({ numSelected, rowCount, onSelectAllClick }) {
             "aria-label": "select all",
           }}
         />
-      </Tooltip>
+      </Tooltip> */}
+
       {/* {numSelected > 0 ? (
       ) : (
         <Typography
@@ -210,18 +292,31 @@ function EnhancedTableToolbar({ numSelected, rowCount, onSelectAllClick }) {
       )} */}
 
       {numSelected > 0 && (
-        <>
-          <Typography
+        <Stack direction="row" spacing={2}>
+          {/* <Typography
             //sx={{ flex: "1 1 100%" }}
-            sx={{ margin: "0 10px" }}
+            sx={{ margin: "auto 8px", lineHeight: 1.75, fontWeight: 600 }}
             color="inherit"
-            variant="subtitle1"
-            component="div"
-            align="left"
+            variant="subtitle2"
+            //component="div"
           >
             {numSelected} selected
-          </Typography>
-          <Tooltip title="Delete">
+          </Typography> */}
+          <Button
+            variant="text"
+            startIcon={<DeleteOutlinedIcon />}
+            sx={{ textTransform: "none" }}
+          >
+            Delete
+          </Button>
+          <Button
+            variant="text"
+            startIcon={<CancelOutlinedIcon />}
+            sx={{ textTransform: "none" }}
+          >
+            Terminate
+          </Button>
+          {/* <Tooltip title="Delete">
             <IconButton>
               <DeleteOutlinedIcon />
             </IconButton>
@@ -230,16 +325,28 @@ function EnhancedTableToolbar({ numSelected, rowCount, onSelectAllClick }) {
             <IconButton>
               <CancelOutlinedIcon />
             </IconButton>
-          </Tooltip>
-        </>
+          </Tooltip> */}
+        </Stack>
       )}
 
       {numSelected === 0 && (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
+        <Stack direction="row" spacing={2}>
+          <Button
+            variant="text"
+            startIcon={<FilterListIcon />}
+            sx={{ textTransform: "none", p: "0 8px" }}
+          >
+            Filter
+          </Button>
+          <Button
+            variant="text"
+            startIcon={<SortIcon />}
+            sx={{ textTransform: "none", p: "0 8px" }}
+          >
+            Sort by
+          </Button>
+          <AddButton />
+        </Stack>
       )}
     </Toolbar>
   );
@@ -251,6 +358,31 @@ EnhancedTableToolbar.propTypes = {
   onSelectAllClick: PropTypes.func.isRequired,
 };
 
+const statusColor = {
+  "Applied": "primary.light",
+  "Wish List": "yellow.main" ,
+  "Interview": "warning.light",
+  "Terminated": "error.light",
+  "Offer": "success.light"
+};
+
+function StatusChip({ status }) {
+  return (
+    <Chip
+      label={status}
+      size="small"
+      sx={{
+        bgcolor: statusColor[status],
+        "& .MuiChip-label": {color: "#fff"}
+      }} />
+  );
+}
+
+StatusChip.propTypes = {
+  status: PropTypes.oneOf(Object.keys(statusColor)).isRequired,
+};
+
+
 function MainTable() {
   const [order, setOrder] = React.useState(DEFAULT_ORDER);
   const [orderBy, setOrderBy] = React.useState(DEFAULT_ORDER_BY);
@@ -260,6 +392,7 @@ function MainTable() {
   const [visibleRows, setVisibleRows] = React.useState(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
   const [paddingHeight, setPaddingHeight] = React.useState(0);
+  const [favorites, setFavorites] = React.useState([]);
 
   React.useEffect(() => {
     let rowsOnMount = stableSort(
@@ -305,7 +438,7 @@ function MainTable() {
     //console.log(newSelected);
   }
 
-  function handleClick(event, id) {
+  function handleRowClick(event, id) {
     const indexInSelected = selected.indexOf(id);
     let newSelected = [];
 
@@ -330,6 +463,23 @@ function MainTable() {
     // }
     setSelected(newSelected);
     //console.log(newSelected);
+  }
+
+  function handleFavoriteChange(event, id) {
+    const indexInFavorites = favorites.indexOf(id);
+    let newFavorites = [];
+
+    if (indexInFavorites === -1) {
+      // not in favorites
+      newFavorites = newFavorites.concat(favorites, id);
+    } else {
+      newFavorites = newFavorites.concat(
+        favorites.slice(0, indexInFavorites),
+        favorites.slice(indexInFavorites + 1)
+      );
+    }
+    setFavorites(newFavorites);
+    //console.log(newFavorites);
   }
 
   // totalRowsShowed = number of rows from the beginning of the table until this page included
@@ -401,14 +551,18 @@ function MainTable() {
   return (
     <Box sx={{ width: "100%" }}>
       <Paper
-        elevation={6}
+        elevation={4}
         sx={{ width: "100%", mb: 2, borderRadius: "12px" }} //p: "0 10px",
       >
-        <EnhancedTableToolbar
-          numSelected={selected.length}
-          rowCount={rows.length}
-          onSelectAllClick={handleSelectAllClick}
-        />
+        {rows.length === 0 ? (
+          <BaseTableToolbar />
+        ) : (
+          <EnhancedTableToolbar
+            numSelected={selected.length}
+            rowCount={rows.length}
+            onSelectAllClick={handleSelectAllClick}
+          />
+        )}
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -424,14 +578,15 @@ function MainTable() {
               rowCount={rows.length}
             />
             <TableBody>
-              {visibleRows
-                ? visibleRows.map((row, index) => {
+              {visibleRows &&
+                visibleRows.map((row, index) => {
                   const isItemSelected = selected.indexOf(row.id) !== -1;
+                  const isFavorite = (favorites.indexOf(row.id) !== -1) ? 1 : 0;
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.id)}
+                      onClick={(event) => handleRowClick(event, row.id)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
@@ -448,6 +603,15 @@ function MainTable() {
                           }}
                         />
                       </TableCell>
+                      <TableCell padding="checkbox">
+                        <Rating
+                          name={`make-favorite-${index}`}
+                          defaultValue={0}
+                          max={1}
+                          value={isFavorite}
+                          onChange={(event) => handleFavoriteChange(event, row.id)}
+                        />
+                      </TableCell>
                       <TableCell
                         component="th"
                         id={labelId}
@@ -459,17 +623,16 @@ function MainTable() {
                       <TableCell align="left">{row.company}</TableCell>
                       <TableCell align="left">{row.location}</TableCell>
                       <TableCell align="left">
-                        {row.createdDate.toLocaleString()}
+                        {dayjs(row.createdDate).fromNow()}
                       </TableCell>
                       <TableCell align="left">
-                        {row.lastModified.toLocaleString()}
+                        {dayjs(row.lastModified).fromNow()}
                       </TableCell>
-                      <TableCell align="left">{row.status}</TableCell>
+                      <TableCell align="left">{<StatusChip status={row.status} />}</TableCell>
                       <TableCell align="left">{row.actions}</TableCell>
                     </TableRow>
                   );
-                })
-                : null}
+                })}
               {paddingHeight > 0 && (
                 <TableRow
                   style={{

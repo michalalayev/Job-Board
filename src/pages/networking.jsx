@@ -1,6 +1,7 @@
 import React from "react";
 import Body from "../components/Body";
 import { Button } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 function Networking() {
   // put props in the ()
@@ -17,6 +18,7 @@ function Networking() {
         </Button>
         <Body />
         {/* <Navbar /> */}
+        <DatePicker />
       </div>
     </>
   );
