@@ -14,29 +14,30 @@ import Toolbar from "@mui/material/Toolbar";
 // import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
-// import IconButton from "@mui/material/IconButton";
-// import Tooltip from "@mui/material/Tooltip";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-//import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+// import IconButton from "@mui/material/IconButton";
+// import Tooltip from "@mui/material/Tooltip";
+//import DeleteIcon from "@mui/icons-material/Delete";
 //import CancelIcon from "@mui/icons-material/Cancel";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SortIcon from "@mui/icons-material/Sort";
 import { visuallyHidden } from "@mui/utils";
 import Button from "@mui/material/Button";
-import rows from "./tableItems";
+//import tableRows from "./tableItems";
 import AddIcon from "@mui/icons-material/Add";
 import Stack from "@mui/material/Stack";
 import Rating from "@mui/material/Rating";
-import Chip from "@mui/material/Chip";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
+import axios from "axios";
+import StatusChip from "./StatusChip";
 
-dayjs.extend(relativeTime)
-dayjs.extend(updateLocale)
+dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
 
 dayjs.updateLocale("en", {
   relativeTime: {
@@ -52,9 +53,9 @@ dayjs.updateLocale("en", {
     M: "1 month",
     MM: "%d months",
     y: "1 year",
-    yy: "%d years"
-  }
-})
+    yy: "%d years",
+  },
+});
 
 function ascendingComparator(a, b, orderBy) {
   //a,b are tableItems (rows), orderBy is the property name (column name)
@@ -75,25 +76,11 @@ function getComparator(order, orderBy) {
     : (a, b) => -ascendingComparator(a, b, orderBy);
 }
 
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
-// function stableSort(array, comparator) {
-//   const stabilizedThis = array.map((el, index) => [el, index]);
-//   stabilizedThis.sort((a, b) => {
-//     const order = comparator(a[0], b[0]);
-//     if (order !== 0) {
-//       return order;
-//     }
-//     return a[1] - b[1];
-//   });
-//   return stabilizedThis.map((el) => el[0]);
-// }
-
 function stableSort(array, comparator) {
   return array.slice().sort(comparator);
 }
+// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
+// Non-modern browsers (notably IE11) do not support stable sort. We do not support those.
 
 const headCells = [
   {
@@ -115,13 +102,13 @@ const headCells = [
     label: "Location",
   },
   {
-    id: "createdDate",
+    id: "created_date",
     numeric: false,
     disablePadding: false,
     label: "Created Date",
   },
   {
-    id: "lastModified",
+    id: "last_modified",
     numeric: false,
     disablePadding: false,
     label: "Last Modified",
@@ -141,11 +128,11 @@ const headCells = [
 ];
 
 const DEFAULT_ORDER = "desc";
-const DEFAULT_ORDER_BY = "createdDate";
+const DEFAULT_ORDER_BY = "last_modified";
 const DEFAULT_ROWS_PER_PAGE = 10;
 
 function EnhancedTableHead(props) {
-  const { order, orderBy, onRequestSort } = props;
+  const { order, orderBy, onRequestSort, rowCount } = props;
 
   function createSortHandler(newOrderBy) {
     return (event) => onRequestSort(event, newOrderBy);
@@ -175,7 +162,7 @@ function EnhancedTableHead(props) {
             sx={{ fontWeight: "bold" }}
           >
             <TableSortLabel
-              active={rows.length > 0 && orderBy === headCell.id}
+              active={rowCount > 0 && orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : "asc"}
               onClick={createSortHandler(headCell.id)}
             >
@@ -194,10 +181,11 @@ function EnhancedTableHead(props) {
 }
 
 EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
+  //numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
   orderBy: PropTypes.string.isRequired,
+  rowCount: PropTypes.number.isRequired,
 };
 
 function AddButton() {
@@ -358,32 +346,9 @@ EnhancedTableToolbar.propTypes = {
   onSelectAllClick: PropTypes.func.isRequired,
 };
 
-const statusColor = {
-  "Applied": "primary.light",
-  "Wish List": "yellow.main" ,
-  "Interview": "warning.light",
-  "Terminated": "error.light",
-  "Offer": "success.light"
-};
-
-function StatusChip({ status }) {
-  return (
-    <Chip
-      label={status}
-      size="small"
-      sx={{
-        bgcolor: statusColor[status],
-        "& .MuiChip-label": {color: "#fff"}
-      }} />
-  );
-}
-
-StatusChip.propTypes = {
-  status: PropTypes.oneOf(Object.keys(statusColor)).isRequired,
-};
-
-
 function MainTable() {
+  const [tableRows, setTableRows] = React.useState([]);
+  const [loaded, setLoaded] = React.useState(false);
   const [order, setOrder] = React.useState(DEFAULT_ORDER);
   const [orderBy, setOrderBy] = React.useState(DEFAULT_ORDER_BY);
   const [selected, setSelected] = React.useState([]);
@@ -394,18 +359,30 @@ function MainTable() {
   const [paddingHeight, setPaddingHeight] = React.useState(0);
   const [favorites, setFavorites] = React.useState([]);
 
+  // read the data from the database:
+  React.useEffect(() => {
+    axios.get("http://localhost:8000/v1/jobs/").then((res) => {
+      setTableRows(res.data);
+      setLoaded(true);
+    });
+  }, []);
+
+  // populate the table with the data
   React.useEffect(() => {
     let rowsOnMount = stableSort(
-      rows,
+      tableRows,
       getComparator(DEFAULT_ORDER, DEFAULT_ORDER_BY)
     );
     rowsOnMount = rowsOnMount.slice(0, DEFAULT_ROWS_PER_PAGE);
     setVisibleRows(rowsOnMount);
 
-    const numEmptyRows = Math.max(0, DEFAULT_ROWS_PER_PAGE - rows.length);
+    const numEmptyRows = Math.max(0, DEFAULT_ROWS_PER_PAGE - tableRows.length);
     const newPaddingHeight = (dense ? 33 : 53) * numEmptyRows;
     setPaddingHeight(newPaddingHeight);
-  }, []);
+  }, [loaded]);
+
+  // console.log("tableRows: ", tableRows);
+  // console.log("visibleRows: ", visibleRows);
 
   const handleRequestSort = React.useCallback(
     (event, newOrderBy) => {
@@ -416,7 +393,7 @@ function MainTable() {
       setOrderBy(newOrderBy);
       // sort rows by the column "newOrderBy" and the given order (direction):
       const sortedRows = stableSort(
-        rows,
+        tableRows,
         getComparator(toggledOrder, newOrderBy)
       );
       // show only 'rowsPerPage' pages
@@ -426,13 +403,13 @@ function MainTable() {
       );
       setVisibleRows(updatedRows);
     },
-    [order, orderBy, page, rowsPerPage]
+    [order, orderBy, page, rowsPerPage, tableRows]
   );
 
   function handleSelectAllClick(event) {
     let newSelected = [];
     if (event.target.checked) {
-      newSelected = rows.map((row) => row.id);
+      newSelected = tableRows.map((row) => row.id);
     }
     setSelected(newSelected);
     //console.log(newSelected);
@@ -484,7 +461,7 @@ function MainTable() {
 
   // totalRowsShowed = number of rows from the beginning of the table until this page included
   function updatePaddingHeight(totalRowsShowed, currentDense) {
-    const numEmptyRows = Math.max(0, totalRowsShowed - rows.length);
+    const numEmptyRows = Math.max(0, totalRowsShowed - tableRows.length);
     const newPaddingHeight = (currentDense ? 33 : 53) * numEmptyRows;
     setPaddingHeight(newPaddingHeight);
   }
@@ -493,7 +470,7 @@ function MainTable() {
     (event, newPage) => {
       setPage(newPage);
 
-      const sortedRows = stableSort(rows, getComparator(order, orderBy));
+      const sortedRows = stableSort(tableRows, getComparator(order, orderBy));
       const updatedRows = sortedRows.slice(
         newPage * rowsPerPage,
         newPage * rowsPerPage + rowsPerPage
@@ -512,7 +489,7 @@ function MainTable() {
       // const newPaddingHeight = (dense ? 33 : 53) * numEmptyRows;
       // setPaddingHeight(newPaddingHeight);
     },
-    [order, orderBy, dense, rowsPerPage]
+    [order, orderBy, dense, rowsPerPage, tableRows]
   );
 
   const handleChangeRowsPerPage = React.useCallback(
@@ -522,7 +499,7 @@ function MainTable() {
 
       setPage(0);
 
-      const sortedRows = stableSort(rows, getComparator(order, orderBy));
+      const sortedRows = stableSort(tableRows, getComparator(order, orderBy));
       const updatedRows = sortedRows.slice(0, updatedRowsPerPage);
       setVisibleRows(updatedRows);
 
@@ -536,7 +513,7 @@ function MainTable() {
       // There is no layout jump to handle on the first page.
       //setPaddingHeight(0);
     },
-    [order, orderBy, dense]
+    [order, orderBy, dense, tableRows]
   );
 
   const handleChangeDense = (event) => {
@@ -554,12 +531,12 @@ function MainTable() {
         elevation={4}
         sx={{ width: "100%", mb: 2, borderRadius: "12px" }} //p: "0 10px",
       >
-        {rows.length === 0 ? (
+        {tableRows.length === 0 ? (
           <BaseTableToolbar />
         ) : (
           <EnhancedTableToolbar
             numSelected={selected.length}
-            rowCount={rows.length}
+            rowCount={tableRows.length}
             onSelectAllClick={handleSelectAllClick}
           />
         )}
@@ -570,18 +547,18 @@ function MainTable() {
             size={dense ? "small" : "medium"}
           >
             <EnhancedTableHead
-              numSelected={selected.length}
+              //numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
+              //onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={tableRows.length}
             />
             <TableBody>
               {visibleRows &&
                 visibleRows.map((row, index) => {
                   const isItemSelected = selected.indexOf(row.id) !== -1;
-                  const isFavorite = (favorites.indexOf(row.id) !== -1) ? 1 : 0;
+                  const isFavorite = favorites.indexOf(row.id) !== -1 ? 1 : 0;
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
                     <TableRow
@@ -609,7 +586,9 @@ function MainTable() {
                           defaultValue={0}
                           max={1}
                           value={isFavorite}
-                          onChange={(event) => handleFavoriteChange(event, row.id)}
+                          onChange={(event) =>
+                            handleFavoriteChange(event, row.id)
+                          }
                         />
                       </TableCell>
                       <TableCell
@@ -623,12 +602,14 @@ function MainTable() {
                       <TableCell align="left">{row.company}</TableCell>
                       <TableCell align="left">{row.location}</TableCell>
                       <TableCell align="left">
-                        {dayjs(row.createdDate).fromNow()}
+                        {dayjs(row.created_date).fromNow()}
                       </TableCell>
                       <TableCell align="left">
-                        {dayjs(row.lastModified).fromNow()}
+                        {dayjs(row.last_modified).fromNow()}
                       </TableCell>
-                      <TableCell align="left">{<StatusChip status={row.status} />}</TableCell>
+                      <TableCell align="left">
+                        {<StatusChip status={row.status} />}
+                      </TableCell>
                       <TableCell align="left">{row.actions}</TableCell>
                     </TableRow>
                   );
@@ -648,7 +629,7 @@ function MainTable() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={rows.length}
+          count={tableRows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
